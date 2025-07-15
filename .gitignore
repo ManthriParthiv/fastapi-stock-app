@@ -1,0 +1,100 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Virtual environment
+venv/
+env/
+ENV/
+myenv/
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS Code local history
+.history/
+
+# Mypy
+.mypy_cache/
+
+# FastAPI specific (if using static dirs or generated assets)
+static/
+uploads/
+
+# Logs
+*.log
+
+# SQL / DB
+*.sqlite3
+*.db
+
+# Docker
+*.pid
+*.pid.lock
+
+# Coverage reports
+coverage/
+
+# Optional: If using poetry or pipenv
+poetry.lock
+Pipfile.lock
+
+# Optional: If using celery
+celerybeat-schedule
+celerybeat.pid
