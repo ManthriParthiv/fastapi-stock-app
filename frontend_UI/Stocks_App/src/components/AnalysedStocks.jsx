@@ -3,16 +3,18 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/AnalysedStock.css';
 import axios from 'axios';
+import {data, useLocation} from 'react-router-dom';
 
 export default function ResultsPage() {
   const [bestStocks, setBestStocks] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const location=useLocation()
+  const Data={'tickers':location.state.trackedStocks || []}
   useEffect(() => {
     const fetchBestStocks = async () => {
       try {
-        const res = await axios.post('http://localhost:8000/Stocks/ml-results');
-        const data = res.data;
+        const res = await axios.post('http://localhost:8000/stocks/ml-results',Data);
+        const data = res.data;        
         setBestStocks(data);
       } catch (err) {
         alert('❌ Failed to load analysis results');
