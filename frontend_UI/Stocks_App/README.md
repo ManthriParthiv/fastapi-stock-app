@@ -13,8 +13,7 @@ This project is built using **React 18** and **Vite** for a fast, modern, and hi
 
 ---
 
-## ⚙️ Setup Instructions (From Scratch)
-
+## ⚙️ Setup Instructions
 cd frontend_UI\Stocks_App
 npm install
 npm run dev

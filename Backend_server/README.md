@@ -13,7 +13,7 @@ Project Setup Steps
    pip install -r requirements.txt
 
 4. Run the FastAPI development server:
-   uvicorn app.main:app --reload
+   uvicorn main:app --reload
 
 - Base URL: http://127.0.0.1:8000
 
