@@ -1,20 +1,48 @@
-# ⚛️ React + Vite App Setup Guide
+📈 Stock Tracker App
 
-This project is built using **React 18** and **Vite** for a fast, modern, and highly performant frontend.
+
+
+
+### 🖥 Frontend
+- React + Bootstrap
+- React Router
+- Axios
+- Responsive UI with tracked-stock drawer
+
+## 🌐 Features
+
+### ✅ Stock List Page
+- Paginated tickers from a CSV file
+- Real-time stock data fetched via `yfinance`
+- Tracked stocks stored in `localStorage`
+- Mobile-responsive layout
+
+### ✅ Drawer & Search
+- Add/remove stocks to a drawer (local tracking)
+- Search stock by name or ticker symbol
+
+### ✅ Analysis Page
+- "Analyse" button sends selected tickers to backend
+- Returns mock ML scores for recommendation
 
 ---
 
-## 🚀 Tech Stack
+## 🗂️ Project Structure
 
-- React (via Vite)
-- Vite (bundler & dev server)
-- Axios (for API calls)
-- JavaScript (ES6+)
-
----
-
-## ⚙️ Setup Instructions (From Scratch)
-
-cd frontend_UI\Stocks_App
-npm install
-npm run dev
+📁 root/
+├── backend/
+│ ├── main.py # FastAPI app
+│ ├── tickers.py # CSV loader function
+│ └── tickers.csv # Stock symbol + name list
+│
+├── frontend/
+│ ├── src/
+│ │ ├── App.js # Stock list + tracker component
+│ │ ├── LandingPage.js # Landing screen
+│ │ ├── ResultsPage.js # ML result view
+│ │ └── styles/ # Custom CSS (Stocks.css, Home.css, etc.)
+│ └── public/
+│ └── bg.jpg # Background image for landing
+│
+├── README.md
+└── package.json / requirements.txt

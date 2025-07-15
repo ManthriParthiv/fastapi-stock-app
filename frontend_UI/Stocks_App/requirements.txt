@@ -1,0 +1,6 @@
+axios
+bootstrap
+bootstrap-icons
+react
+react-dom
+react-router-dom

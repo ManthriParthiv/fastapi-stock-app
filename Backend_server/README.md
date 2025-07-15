@@ -27,3 +27,20 @@ C:\Users\bdeer\OneDrive\Desktop\fastapi-stock-app\
     └── tickers_with_names.csv         # 📄 CSV file with ticker data
 
 
+# 📈 FastAPI Stock API
+
+A lightweight, fast, and customizable stock API built with **FastAPI** that:
+- Loads stock ticker data from a CSV file
+-Fetches live stock info using yfinance (free, but not for commercial use)
+- Includes a **dummy ML stock recommendation endpoint**
+
+---
+
+## 🚀 Features
+
+- 🔄 **Live stock data** using `yfinance`
+- 📄 **Ticker data from CSV**
+- 🔢 **Paginated ticker listing**
+- 📡 `/stock/{ticker}` for real-time info
+- 🤖 `/stocks/ml-results` for stub ML results
+- ⚙️ CORS enabled for cross-origin usage
