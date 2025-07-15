@@ -20,18 +20,10 @@ Project Setup Steps
 Folder Structure
 
 
-app/
-├── main.py     # Starts the FastAPI app
-├── routes/     # API endpoints (like /optimize)
-├── models/     # Data models using Pydantic
-└── services/   # Logic for portfolio optimization
-
-requirements.txt         # List of Python dependencies
-README.txt               # You are reading this!
-.gitignore               # Files and folders to ignore in Git
-
-Notes
-- Make sure to activate your virtual environment every time before running the server.
-
+C:\Users\bdeer\OneDrive\Desktop\fastapi-stock-app\
+└── Backend_server\
+    ├── main.py                        # 🔹 FastAPI app
+    ├── tickers.py                     # 🔹 CSV loader module
+    └── tickers_with_names.csv         # 📄 CSV file with ticker data
 
 
