@@ -1,0 +1,35 @@
+.landing-container {
+  background-image: url('bg.jpg'); /* Stock market image */
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+  padding: 2rem;
+}
+
+.footer {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  z-index: 10;
+  font-size: 0.9rem;
+}
