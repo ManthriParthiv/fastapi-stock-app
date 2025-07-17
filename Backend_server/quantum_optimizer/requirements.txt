@@ -1,0 +1,6 @@
+qiskit>=0.46.0,<0.47.0
+yfinance
+pandas
+numpy
+matplotlib
+tabulate

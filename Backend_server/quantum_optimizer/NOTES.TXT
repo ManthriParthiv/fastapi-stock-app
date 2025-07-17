@@ -1,0 +1,46 @@
+upto 10 july:
+all folders made and 4-5 parameters added
+-----------------------------------------------------------------------------------------------
+10 july 2025:
+
+added 3 more parameters :"EV/EBITDA", "Beta", and "MarketCap"
+
+Summary of files to touch:
+
+    preprocessing/fetch_fundamentals.py
+    – Add "EV/EBITDA", "Beta", and "MarketCap" to the rows dict.
+
+    postprocessing/analyze.py (your compile_results)
+    – Extend the rows.append([...]) line to pull the three new info fields
+    – Extend the headers=[…] list to label your new columns
+
+added 3 more params: revenueGrowth, pegRatio, and profitMargins
+
+added 5 more params:
+Free Cash Flow → freeCashflow
+Operating Margin → operatingMargins
+P/S Ratio → priceToSalesTrailing12Months
+Dividend Payout → payoutRatio
+Current Ratio → currentRatio
+----------------------------------------------------------------------------------------------------------------
+16 july 2025:
+to test vqe in swagger:
+write this in POST REQUEST for /quantum/portfolio-optimize: 
+
+{
+  "mu": [0.12, 0.10, 0.07],
+  "cov": [
+    [0.005, -0.010, 0.004],
+    [-0.010, 0.040, -0.002],
+    [0.004, -0.002, 0.023]
+  ],
+  "fundamentals": [0.8, 0.6, 0.3],
+  "budget": 1,
+  "risk_factor": 0.5
+}
+then execute...
+RESULT: 
+optimized_weights: Final asset allocation percentages (per asset in input)
+energY: Final minimized cost (quantum "energy" of the system, optimization goal)
+theta: Parameters (angles) found by the quantum circuit during optimization
+iterations	(null = unused or not returned in your version)

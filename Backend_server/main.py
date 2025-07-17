@@ -9,7 +9,8 @@ import math
 from pydantic import BaseModel
 from typing import List, Dict, Any
 
-from tickers import tickers  # Custom function/module that loads ticker CSV
+from Backend_server.tickers import tickers
+from Backend_server.quantum_optimizer.api import run_quantum_backend  # --------------------- Added import
 
 app = FastAPI()
 
@@ -92,8 +93,10 @@ def get_live_stock_info(ticker: str):
 @app.get("/stock/{ticker}", status_code=HTTPStatus.OK)
 async def get_one_stock(ticker: str):
     return await run_in_threadpool(lambda: get_live_stock_info(ticker))
+
 class StockRequest(BaseModel):
     tickers: List[str]
+
 # ✅ ML results stub
 @app.post("/stocks/ml-results", status_code=HTTPStatus.OK)
 def get_batch_stocks(request: StockRequest):
@@ -103,4 +106,32 @@ def get_batch_stocks(request: StockRequest):
         {"ticker": "MSFT", "name": "Microsoft Corporation", "score": 0.94},
         {"ticker": "GOOGL", "name": "Alphabet Inc.", "score": 0.91}
     ]
-    return  result
+    return result
+
+# ---------------------SECTION FOR VQE API ---------------------
+class VQEInput(BaseModel):
+    mu: List[float]
+    cov: List[List[float]]
+    fundamentals: List[float]
+    budget: float
+    risk_factor: float
+
+@app.post("/quantum/portfolio-optimize", status_code=HTTPStatus.OK)
+def optimize_portfolio(request: VQEInput):
+    try:
+        result = run_quantum_backend(
+            mu=request.mu,
+            cov=request.cov,
+            fundamentals=request.fundamentals,
+            budget=request.budget,
+            risk_factor=request.risk_factor,
+        )
+        return {
+            "optimized_weights": result["weights"],
+            "energy": result["energy"],
+            "theta": result["theta"],
+            "iterations": result["num_iterations"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+# ---------------------  END VQE SECTION ---------------------
