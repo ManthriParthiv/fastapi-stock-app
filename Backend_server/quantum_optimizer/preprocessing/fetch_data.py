@@ -28,5 +28,5 @@ def fetch_and_cache(tickers, outpath, period="6mo",auto_adjust=True):
 
 if __name__ == "__main__":
     tickers = ["TCS.NS", "SIEMENS.NS", "NHPC.NS", "IDEA.NS"]
-    df = fetch_and_cache(tickers, "../data/last6m.csv")
+    df = fetch_and_cache(tickers, "./data/last6m.csv")
     print("API call stats:", api_logger.summary())

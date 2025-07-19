@@ -1,3 +1,20 @@
+python -m preprocessing.fetch_data
+python -m preprocessing.fetch_fundamentals
+python -m preprocessing.parallel_fetch
+
+python -m processing.vqe_portfolio
+
+python -m postprocessing.analyze
+python -m postprocessing.visualize
+
+python run_all.py
+
+---------------------------------------------------------
+
+
+
+
+
 upto 10 july:
 all folders made and 4-5 parameters added
 -----------------------------------------------------------------------------------------------
