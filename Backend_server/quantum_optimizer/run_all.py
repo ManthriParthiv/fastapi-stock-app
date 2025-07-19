@@ -1,7 +1,7 @@
 import os, time
 import pandas as pd
 
-from preprocessing.fetch_data import fetch_and_cache   # you may not need this now
+from preprocessing.fetch_data import fetch_and_cache   
 from processing.utils import load_returns, load_features, annualize
 from processing.vqe_portfolio import run_vqe
 from postprocessing.analyze    import compile_results
