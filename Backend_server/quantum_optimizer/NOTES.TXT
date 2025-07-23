@@ -41,23 +41,16 @@ Dividend Payout → payoutRatio
 Current Ratio → currentRatio
 ----------------------------------------------------------------------------------------------------------------
 16 july 2025:
-to test vqe in swagger:
-write this in POST REQUEST for /quantum/portfolio-optimize: 
+
+
+19 july:
+# run this to check it (then add test in swagger)
+(vqe_env) khushboo@khushboo:~/anantwave/code-quantum/VQE-BACKEND/fastapi-stock-app/Backend_server$ python run_fastapi.py
+
+test case:
 
 {
-  "mu": [0.12, 0.10, 0.07],
-  "cov": [
-    [0.005, -0.010, 0.004],
-    [-0.010, 0.040, -0.002],
-    [0.004, -0.002, 0.023]
-  ],
-  "fundamentals": [0.8, 0.6, 0.3],
-  "budget": 1,
-  "risk_factor": 0.5
+  "tickers": ["TCS.NS", "SIEMENS.NS"],
+  "risk_factor": 0.3,
+  "budget": 1.0
 }
-then execute...
-RESULT: 
-optimized_weights: Final asset allocation percentages (per asset in input)
-energY: Final minimized cost (quantum "energy" of the system, optimization goal)
-theta: Parameters (angles) found by the quantum circuit during optimization
-iterations	(null = unused or not returned in your version)
