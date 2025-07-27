@@ -4,3 +4,4 @@ pandas
 numpy
 matplotlib
 tabulate
+qiskit-algorithms

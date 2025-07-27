@@ -6,6 +6,9 @@ from typing import Dict, List
 import logging
 from pathlib import Path
 
+
+
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,6 +19,10 @@ class PortfolioRequest(BaseModel):
     tickers: List[str] = Field(..., min_items=2, max_items=4)
     risk_factor: float = Field(0.5, ge=0.1, le=1.0)
     budget: float = Field(1.0, gt=0)
+
+@app.get("/")
+def first():
+    return{"data":"you are viewing fastapi_adapter server"}
 
 @app.post("/optimize")
 async def optimize(request: PortfolioRequest):
