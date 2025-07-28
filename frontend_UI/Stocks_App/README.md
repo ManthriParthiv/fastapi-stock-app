@@ -27,22 +27,8 @@
 
 ---
 
-## 🗂️ Project Structure
+## ⚙️ Setup Instructions (From Scratch)
 
-📁 root/
-├── backend/
-│ ├── main.py # FastAPI app
-│ ├── tickers.py # CSV loader function
-│ └── tickers.csv # Stock symbol + name list
-│
-├── frontend/
-│ ├── src/
-│ │ ├── App.js # Stock list + tracker component
-│ │ ├── LandingPage.js # Landing screen
-│ │ ├── ResultsPage.js # ML result view
-│ │ └── styles/ # Custom CSS (Stocks.css, Home.css, etc.)
-│ └── public/
-│ └── bg.jpg # Background image for landing
-│
-├── README.md
-└── package.json / requirements.txt
+cd frontend_UI\Stocks_App
+npm install
+npm run dev
