@@ -4,6 +4,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/Stocks.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
+const current_Stocks=["IDEA.NS","NHPC.NS","SIEMENS.NS","TCS.NS"];
 export default function App() {
   const [page, setPage] = useState(1);
   const [stockList, setStockList] = useState([]);
@@ -14,20 +16,26 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [trackedStocks, setTrackedStocks] = useState([]);
   const [showDrawer, setShowDrawer] = useState(false); // Drawer state
-const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-useEffect(() => {
-setTrackedStocks(prev => {
-      return JSON.parse(window.localStorage.getItem('trackedStocks')) || [];
-});
-}, []);
-const navigate = useNavigate();
-useEffect(() => {
-  const handleResize = () => setScreenWidth(window.innerWidth);
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
-const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
+  // New state for dropdown selection
+  const [selectedAnalysisOption, setSelectedAnalysisOption] = useState('VQE-Optimisation'); 
+
+  useEffect(() => {
+    setTrackedStocks(prev => {
+      return JSON.parse(window.localStorage.getItem('trackedStocks')) || [];
+    });
+  }, []);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -82,12 +90,17 @@ const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
       prev.includes(ticker) ? prev.filter(item => item !== ticker) : [...prev, ticker]
     );
   };
- const navigateTo = () => {
-      window.localStorage.setItem('trackedStocks', JSON.stringify([...trackedStocks]));
-    navigate('/analysed-stocks', {
-      state: { trackedStocks } // Pass tracked stocks to the analysis page
+
+  const navigateTo = () => {
+    window.localStorage.setItem('trackedStocks', JSON.stringify([...trackedStocks]));
+       navigate('/analysed-stocks', {
+      state: { 
+        trackedStocks: trackedStocks,
+        analysisOption: selectedAnalysisOption // Pass the selected analysis option
+      }
     });
   };
+
   return (
     <div className="app-container">
       {/* 🔷 Navbar */}
@@ -105,7 +118,16 @@ const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
             </span>
           </div>
 
-          <button className="btn btn-primary analyse-btn" onClick={()=>{navigateTo()}}>Analyse</button>
+          {/* New Dropdown for Analysis Options */}
+          <select
+            className="form-select form-select-sm bg-secondary text-white"
+            style={{ width: 'auto', minWidth: '150px' }}
+            onChange={(e) => setSelectedAnalysisOption(e.target.value)}
+          >
+            <option value="VQE-Optimisation">VQE-Optimisation</option>
+          </select>
+
+          <button className="btn btn-primary analyse-btn" onClick={() => { navigateTo() }}>Analyse</button>
         </div>
       </nav>
 
@@ -139,40 +161,40 @@ const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
 
       {/* 📄 Main Content */}
       <div className="d-flex main-content">
-       <aside
-  className="stock-list"
-  style={{ width: isMdOrSm ? '30%' : '350px', minWidth: '150px' }}
->
-  <div className="input-group mb-3">
-    <input
-      type="text"
-      value={searchText}
-      onChange={e => setSearchText(e.target.value)}
-      onKeyDown={e => e.key === 'Enter' && handleSearch()}
-      className="form-control"
-      placeholder="Search ticker or name"
-    />
-    <button className="btn btn-outline-secondary" onClick={handleSearch}>
-      <i className="bi bi-search"></i>
-    </button>
-  </div>
+        <aside
+          className="stock-list"
+          style={{ width: isMdOrSm ? '30%' : '350px', minWidth: '150px' }}
+        >
+          <div className="input-group mb-3">
+            <input
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              className="form-control"
+              placeholder="Search ticker or name"
+            />
+            <button className="btn btn-outline-secondary" onClick={handleSearch}>
+              <i className="bi bi-search"></i>
+            </button>
+          </div>
 
-  {stockList.map(stock => (
-    <div
-      key={stock.ticker}
-      className={`stock-item ${selectedStock === stock.ticker ? 'active' : ''}`}
-      onClick={() => handleSelect(stock.ticker)}
-    >
-      <h6 className="mb-0">{stock.ticker}</h6>
-      {!isMdOrSm && <p className="mb-1 small">{stock.name}</p>}
-    </div>
-  ))}
+          {stockList.map(stock => (
+            <div
+              key={stock.ticker}
+              className={`stock-item ${selectedStock === stock.ticker ? 'active' : ''}`}
+              onClick={() => handleSelect(stock.ticker)}
+            >
+              <h6 className="mb-0">{stock.ticker}</h6>
+              {!isMdOrSm && <p className="mb-1 small">{stock.name}</p>}
+            </div>
+          ))}
 
-  <button className="btn btn-primary w-100 mt-2" onClick={() => setPage(prev => prev + 1)}>
-    Load More
-  </button>
-</aside>
- <div className="stock-details flex-fill p-3 mt-5">
+          <button className="btn btn-primary w-100 mt-5" onClick={() => setPage(prev => prev + 1)}>
+            Load More
+          </button>
+        </aside>
+        <div className="stock-details flex-fill p-3 mt-2">
           {!selectedStock && (
             <div className="placeholder">
               <i className="bi bi-info-circle me-2" style={{ fontSize: '2rem' }}></i>
@@ -192,7 +214,7 @@ const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
           )}
 
           {stockDetails && !loading && (
-            <div className="details-card card shadow-sm mt-5">
+            <div className="details-card card shadow-sm mt-2">
               <div className="card-header bg-primary text-white d-flex align-items-center">
                 <i className="bi bi-graph-up me-2"></i>
                 <h5 className="mb-0">{stockDetails.name} ({stockDetails.ticker})</h5>
@@ -201,9 +223,6 @@ const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
                 <table className="table table-sm mb-0">
                   <tbody>
                     <tr><th>Price</th><td>{stockDetails.price}</td></tr>
-                    <tr><th>Open</th><td>{stockDetails.open}</td></tr>
-                    <tr><th>High</th><td>{stockDetails.high}</td></tr>
-                    <tr><th>Low</th><td>{stockDetails.low}</td></tr>
                     <tr><th>Volume</th><td>{Number(stockDetails.volume).toLocaleString()}</td></tr>
                   </tbody>
                 </table>
@@ -219,16 +238,17 @@ const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
 
                 <button
                   className="btn btn-sm btn-outline-primary m-3"
-                  onClick={() => toggleStockTracking(stockDetails.ticker)}
+                  onClick={() =>(current_Stocks.indexOf(selectedStock)!==-1)? toggleStockTracking(stockDetails.ticker):''}
                   style={
                     trackedStocks.includes(stockDetails.ticker)
                       ? { backgroundColor: 'red', color: 'black' }
                       : {}
                   }
                 >
-                  {trackedStocks.includes(stockDetails.ticker)
+                  {(current_Stocks.indexOf(selectedStock)!==-1)?trackedStocks.includes(stockDetails.ticker)
                     ? 'Remove from analysis'
-                    : 'Add for analysis'}
+                    : 'Add for analysis':'Not available for analysis'}
+
                 </button>
               </div>
             </div>

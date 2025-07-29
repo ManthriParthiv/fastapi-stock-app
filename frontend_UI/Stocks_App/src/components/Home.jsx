@@ -27,10 +27,10 @@ img.src = '/bg.jpg';
       <div className="overlay"></div>
 
       <div className="content">
-        <h1 className="display-3 fw-bold mb-4">📊 Welcome to Stock Tracker</h1>
-        <p className="lead mb-5">
-          Real-time insights, detailed analysis,<br /> all in one sleek dashboard.
-        </p>
+        <h1 className="display-3 fw-bold mb-4">📊 VQE-Optimisation</h1>
+       <p className="lead mb-5">
+  Unlock smarter investments with AI-powered VQE optimization.
+</p>
         <button className="btn btn-lg btn-primary px-4 " onClick={()=>navigate('/Stocks')}>
           Go to Stock Tracker 🚀
         </button>

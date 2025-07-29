@@ -1,66 +1,87 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import '../styles/AnalysedStock.css';
+import '../styles/AnalysedStock.css'; 
 import axios from 'axios';
-import {data, useLocation} from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 export default function ResultsPage() {
-  const [bestStocks, setBestStocks] = useState([]);
+  // bestStocks will now hold the entire response object (tickers, weights, risk)
+  const [analysisResults, setAnalysisResults] = useState(null);
   const [loading, setLoading] = useState(true);
-  const location=useLocation()
-  const Data={'tickers':location.state.trackedStocks || []}
+  const location = useLocation();
+
+  const requestData = {
+    tickers: location.state?.trackedStocks || [], // Use optional chaining for safety
+    analysisOption: location.state.analysisOption  // Pass the selected option
+  };
   useEffect(() => {
-    const fetchBestStocks = async () => {
+    const fetchAnalysisResults = async () => {
+      if (requestData.tickers.length === 0) {
+        setLoading(false);
+        setAnalysisResults(null); 
+        return;
+      }
+
       try {
-        const res = await axios.post('http://localhost:8000/stocks/ml-results',Data);
-        const data = res.data;        
-        setBestStocks(data);
+        const res = await axios.post('http://127.0.0.1:8000/quantum/optimize', requestData);
+        const data = res.data;
+        setAnalysisResults(data); // Store the entire response
       } catch (err) {
-        alert('❌ Failed to load analysis results');
+        console.error('❌ Failed to load analysis results:', err);
+        alert('❌ Failed to load analysis results. Please try again.');
+        setAnalysisResults(null); // Clear results on error
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBestStocks();
-  }, []);
+    fetchAnalysisResults();
+  }, [requestData.tickers, requestData.analysisOption]); // Re-run effect if trackedStocks or analysisOption changes
 
   return (
     <div className="result-wrapper d-flex flex-column justify-content-center align-items-center vh-100 px-3">
       <h2 className="text-center mb-4">
-        <i className="bi bi-bar-chart-line-fill me-2 text-primary"></i>
-        ML-Based Stock Recommendations
+        <i className="bi bi-pie-chart-fill me-2 text-primary"></i>
+        {requestData.analysisOption}
       </h2>
 
       {loading ? (
         <div className="text-center mt-4">
           <div className="spinner-border text-primary" role="status"></div>
-          <p className="mt-3">Fetching insights...</p>
+          <p className="mt-3">Optimizing your portfolio...</p>
         </div>
-      ) : bestStocks.length === 0 ? (
-        <p className="text-center text-muted">No recommendations available.</p>
-      ) : (
-        <div className="results-list w-100 d-flex flex-column align-items-center">
-          {bestStocks.map((stock, index) => (
-            <div key={index} className="result-card card shadow-sm mb-4 p-3">
-              <div className="d-flex align-items-center gap-3">
-                <div className="icon-wrap">
-                  <i className="bi bi-graph-up-arrow fs-2 text-success"></i>
-                </div>
-                <div className="stock-info text-start">
-                  <h5 className="mb-1 fw-semibold">{stock.ticker}</h5>
-                  <p className="mb-1 text-muted small">{stock.name}</p>
-                  {stock.score && (
-                    <span className="badge bg-light text-dark">
-                      Confidence: {(stock.score * 100).toFixed(2)}%
-                    </span>
-                  )}
-                </div>
-              </div>
+      ) : (analysisResults && analysisResults.tickers && analysisResults.tickers.length > 0) ? (
+        <div className="results-container w-100 d-flex flex-column align-items-center">
+          <div className="card shadow-sm mb-4 p-4 w-75"> {/* Increased width */}
+            <h4 className="card-title text-center mb-3">Recommended {requestData.analysisOption}</h4>
+            <div className="table-responsive">
+              <table className="table table-striped table-hover mb-3">
+                <thead>
+                  <tr>
+                    <th>Ticker</th>
+                    <th>Recommended Weight</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analysisResults.tickers.map((ticker, index) => (
+                    <tr key={index}>
+                      <td><strong>{ticker}</strong></td>
+                      <td>{(analysisResults.weights[ticker])}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ))}
+            <div className="alert alert-info text-center mt-3">
+              <strong>Overall Risk:</strong> {(analysisResults.risk)}%
+            </div>
+          </div>
         </div>
+      ) : (
+        <p className="text-center text-muted">
+          No portfolio optimization results available. Please track some stocks first.
+        </p>
       )}
     </div>
   );
