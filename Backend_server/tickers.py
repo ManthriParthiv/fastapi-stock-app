@@ -3,18 +3,24 @@ import pandas as pd
 
 def tickers():
     try:
-        # Get the path to the current file (tickers.py)
         base_dir = os.path.dirname(os.path.abspath(__file__))
 
-        # CSV is in the same directory (Backend_server)
-        csv_path = os.path.join(base_dir, 'tickers_with_names.csv')
+        # Load fundamentals.csv
+        fundamentals_path = os.path.join(base_dir, 'quantum_optimizer', 'data', 'fundamentals.csv')
+        data = pd.read_csv(fundamentals_path)
 
-        # Read the CSV
-        df = pd.read_csv(csv_path)
-        tickers = df["Symbol"].tolist()
+        # Load tickers_with_names.csv
+        tickers_csv_path = os.path.join(base_dir, 'tickers_with_names.csv')
+        df = pd.read_csv(tickers_csv_path)
+
+        csv_tickers = df["Symbol"].tolist()
+
+        tickers = list(set(csv_tickers))
+
     except Exception as e:
+        print("❌ Failed to load tickers:", e)
+        data = pd.DataFrame()
         df = pd.DataFrame()
         tickers = []
-        print("❌ Failed to load tickers:", e)
 
-    return df, tickers
+    return data, df, tickers

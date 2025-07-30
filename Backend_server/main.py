@@ -3,7 +3,6 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from http import HTTPStatus
-import yfinance as yf
 import pandas as pd
 import math
 from pydantic import BaseModel,Field
@@ -27,7 +26,7 @@ app.add_middleware(
 )
 
 # ✅ Load tickers and stock data
-df, tickers = tickers()
+data, df, tickers = tickers()
 
 
 # ---------- Helper Functions ----------
@@ -57,21 +56,32 @@ def get_stocks(page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=500))
     ]
     return JSONResponse(content=result)
 
+#Fundamentals.csv file Data-------------------------
 
 @app.get("/stock/{ticker}", status_code=HTTPStatus.OK)
-async def get_one_stock(ticker: str):
+def get_one_stock(ticker: str):
     try:
-        stock = yf.Ticker(ticker)
-        info = stock.info
-        return {
-            "ticker": ticker,
-            "price": safe_value(info.get("currentPrice")),
-            "volume": safe_value(info.get("volume")),
-            "link": f"https://finance.yahoo.com/quote/{ticker}"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error fetching data: {str(e)}")
+        match = data.loc[data["Ticker"] == ticker]
 
+        if match.empty:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=f"No data found for ticker '{ticker}'"
+            )
+
+        row = match.iloc[0].to_dict()
+
+        clean_row = {}
+        for key, value in row.items():
+            if pd.isna(value):
+                clean_row[key] = ""
+            else:
+                clean_row[key] = str(value)
+        
+        return clean_row
+
+    except Exception as e:
+            return{}
 
 # ---------- Quantum Router (Converted fastapi_adapter.py) ----------
 

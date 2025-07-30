@@ -5,7 +5,7 @@ import '../styles/Stocks.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const current_Stocks=["IDEA.NS","NHPC.NS","SIEMENS.NS","TCS.NS"];
+const current_Stocks = ["IDEA.NS", "NHPC.NS", "SIEMENS.NS", "TCS.NS"];
 export default function App() {
   const [page, setPage] = useState(1);
   const [stockList, setStockList] = useState([]);
@@ -18,8 +18,7 @@ export default function App() {
   const [showDrawer, setShowDrawer] = useState(false); // Drawer state
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
-  // New state for dropdown selection
-  const [selectedAnalysisOption, setSelectedAnalysisOption] = useState('VQE-Optimisation'); 
+  const [selectedAnalysisOption, setSelectedAnalysisOption] = useState('VQE-Optimisation');
 
   useEffect(() => {
     setTrackedStocks(prev => {
@@ -35,7 +34,7 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isMdOrSm = screenWidth < 992; // Bootstrap 'lg' breakpoint is 992px
+  const isMdOrSm = screenWidth < 992;
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -93,8 +92,8 @@ export default function App() {
 
   const navigateTo = () => {
     window.localStorage.setItem('trackedStocks', JSON.stringify([...trackedStocks]));
-       navigate('/analysed-stocks', {
-      state: { 
+    navigate('/analysed-stocks', {
+      state: {
         trackedStocks: trackedStocks,
         analysisOption: selectedAnalysisOption // Pass the selected analysis option
       }
@@ -222,11 +221,28 @@ export default function App() {
               <div className="card-body">
                 <table className="table table-sm mb-0">
                   <tbody>
-                    <tr><th>Price</th><td>{stockDetails.price}</td></tr>
-                    <tr><th>Volume</th><td>{Number(stockDetails.volume).toLocaleString()}</td></tr>
+                    <tr>
+                      <th>Volume</th>
+                      <td>{stockDetails.Volume ? Number(stockDetails.Volume).toLocaleString() : ''}</td>
+                    </tr>
+                    <tr>
+                      <th>P/E Ratio</th>
+                      <td>{stockDetails.PE}</td>
+                    </tr>
+                    <tr>
+                      <th>P/B Ratio</th>
+                      <td>{stockDetails.PB}</td>
+                    </tr>
+                    <tr>
+                      <th>ROE</th>
+                      <td>{stockDetails.ROE}</td>
+                    </tr>
+                    <tr>
+                      <th>Earnings Date</th>
+                      <td>{stockDetails.EarningsDate}</td>
+                    </tr>
                   </tbody>
                 </table>
-
                 <a
                   href={stockDetails.link}
                   target="_blank"
@@ -238,16 +254,16 @@ export default function App() {
 
                 <button
                   className="btn btn-sm btn-outline-primary m-3"
-                  onClick={() =>(current_Stocks.indexOf(selectedStock)!==-1)? toggleStockTracking(stockDetails.ticker):''}
+                  onClick={() => (current_Stocks.indexOf(selectedStock) !== -1) ? toggleStockTracking(stockDetails.ticker) : ''}
                   style={
                     trackedStocks.includes(stockDetails.ticker)
                       ? { backgroundColor: 'red', color: 'black' }
                       : {}
                   }
                 >
-                  {(current_Stocks.indexOf(selectedStock)!==-1)?trackedStocks.includes(stockDetails.ticker)
+                  {(current_Stocks.indexOf(selectedStock) !== -1) ? trackedStocks.includes(stockDetails.ticker)
                     ? 'Remove from analysis'
-                    : 'Add for analysis':'Not available for analysis'}
+                    : 'Add for analysis' : 'Not available for analysis'}
 
                 </button>
               </div>
