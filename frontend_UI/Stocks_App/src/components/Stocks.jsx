@@ -63,7 +63,7 @@ export default function App() {
     try {
       setSelectedStock(ticker);
       const res = await axios.get(`http://localhost:8000/stock/${ticker}`);
-      setStockDetails(res.data);
+      setStockDetails(res.data);      
     } catch (err) {
       alert('❌ Failed to fetch stock details:', err);
     } finally {
@@ -85,6 +85,7 @@ export default function App() {
   };
 
   const toggleStockTracking = (ticker) => {
+    
     setTrackedStocks(prev =>
       prev.includes(ticker) ? prev.filter(item => item !== ticker) : [...prev, ticker]
     );
@@ -216,7 +217,7 @@ export default function App() {
             <div className="details-card card shadow-sm mt-2">
               <div className="card-header bg-primary text-white d-flex align-items-center">
                 <i className="bi bi-graph-up me-2"></i>
-                <h5 className="mb-0">{stockDetails.name} ({stockDetails.ticker})</h5>
+                <h5 className="mb-0"> {stockDetails.Ticker}</h5>
               </div>
               <div className="card-body">
                 <table className="table table-sm mb-0">
@@ -243,27 +244,19 @@ export default function App() {
                     </tr>
                   </tbody>
                 </table>
-                <a
-                  href={stockDetails.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn btn-sm btn-outline-primary m-3"
-                >
-                  View on Yahoo Finance
-                </a>
 
                 <button
                   className="btn btn-sm btn-outline-primary m-3"
-                  onClick={() => (current_Stocks.indexOf(selectedStock) !== -1) ? toggleStockTracking(stockDetails.ticker) : ''}
+                  onClick={() =>{ (current_Stocks.indexOf(selectedStock) != -1) ? toggleStockTracking(stockDetails.Ticker) : ''}}
                   style={
-                    trackedStocks.includes(stockDetails.ticker)
+                    trackedStocks.includes(stockDetails.Ticker)
                       ? { backgroundColor: 'red', color: 'black' }
                       : {}
                   }
                 >
-                  {(current_Stocks.indexOf(selectedStock) !== -1) ? trackedStocks.includes(stockDetails.ticker)
+                  {(current_Stocks.indexOf(selectedStock) !== -1) ? (trackedStocks.includes(stockDetails.Ticker)
                     ? 'Remove from analysis'
-                    : 'Add for analysis' : 'Not available for analysis'}
+                    : 'Add for analysis' ): 'Not available for analysis'}
 
                 </button>
               </div>
