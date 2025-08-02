@@ -14,12 +14,12 @@ export default function App() {
   const [searchText, setSearchText] = useState('');
   const [searchFeedback, setSearchFeedback] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedStocksOption,setSelectedStocksOption]=useState('All Stocks');
   const [trackedStocks, setTrackedStocks] = useState([]);
-  const [showDrawer, setShowDrawer] = useState(false); // Drawer state
+  const [showDrawer, setShowDrawer] = useState(false);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-
   const [selectedAnalysisOption, setSelectedAnalysisOption] = useState('VQE-Optimisation');
-
+const AvailableStocks=["All Stocks","Avaiable stocks"]
   useEffect(() => {
     setTrackedStocks(prev => {
       return JSON.parse(window.localStorage.getItem('trackedStocks')) || [];
@@ -34,7 +34,7 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isMdOrSm = screenWidth < 992;
+  const isMdOrSm = screenWidth < 950
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -165,6 +165,13 @@ export default function App() {
           className="stock-list"
           style={{ width: isMdOrSm ? '30%' : '350px', minWidth: '150px' }}
         >
+                      <select   onChange={(e)=>{
+                       setSelectedStocksOption(e.target.value)}} className="form-select form-select-sm fw-bolder bg-secondary mb-3 ps-3 p-2 bold bg-Peach text-white">
+                      {AvailableStocks.map((e)=>
+                        (<option value={e}>{e}</option>)
+                      )}
+                      </select>
+
           <div className="input-group mb-3">
             <input
               type="text"
@@ -179,18 +186,25 @@ export default function App() {
             </button>
           </div>
 
-          {stockList.map(stock => (
+          {stockList.map(stock =>(selectedStocksOption=="All Stocks")?(
             <div
               key={stock.ticker}
               className={`stock-item ${selectedStock === stock.ticker ? 'active' : ''}`}
               onClick={() => handleSelect(stock.ticker)}
             >
               <h6 className="mb-0">{stock.ticker}</h6>
-              {!isMdOrSm && <p className="mb-1 small">{stock.name}</p>}
+              {!isMdOrSm && <p className="mb-1 small"> {stock.name}</p>}
             </div>
-          ))}
+          ):current_Stocks.indexOf(stock.ticker)!=-1 && ( <div
+              key={stock.ticker}
+              className={`stock-item ${selectedStock === stock.ticker ? 'active' : ''}`}
+              onClick={() => handleSelect(stock.ticker)}
+            >
+              <h6 className="mb-0">{stock.ticker}</h6>
+              {!isMdOrSm && <p className="mb-1  small">{stock.name}</p>}
+            </div>))}
 
-          <button className="btn btn-primary w-100 mt-5" onClick={() => setPage(prev => prev + 1)}>
+          <button className="btn btn-primary w-100 mt-5 bg-transparent" onClick={() => setPage(prev => prev + 1)}>
             Load More
           </button>
         </aside>
