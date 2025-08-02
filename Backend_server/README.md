@@ -9,11 +9,17 @@ Project Setup Steps
    On Windows:
        myenv\Scripts\activate
 
-3. Install the required packages:
+3. Download the requirements on project directory :
+   pip install -r requirements.txt
+
+3. Change to the project directory :
+   cd quantum_optimiser
+   Then install the required packages;
    pip install -r requirements.txt
 
 4. Run the FastAPI development server:
-   uvicorn main:app --reload
+   Come back to Backend server directory and run the server;
+   python main.py
 
 - Base URL: http://127.0.0.1:8000
 
@@ -25,22 +31,16 @@ C:\Users\bdeer\OneDrive\Desktop\fastapi-stock-app\
     ├── main.py                        # 🔹 FastAPI app
     ├── tickers.py                     # 🔹 CSV loader module
     └── tickers_with_names.csv         # 📄 CSV file with ticker data
-
-
-# 📈 FastAPI Stock API
-
-A lightweight, fast, and customizable stock API built with **FastAPI** that:
-- Loads stock ticker data from a CSV file
--Fetches live stock info using yfinance (free, but not for commercial use)
-- Includes a **dummy ML stock recommendation endpoint**
-
----
-
-## 🚀 Features
-
-- 🔄 **Live stock data** using `yfinance`
-- 📄 **Ticker data from CSV**
-- 🔢 **Paginated ticker listing**
-- 📡 `/stock/{ticker}` for real-time info
-- 🤖 `/stocks/ml-results` for stub ML results
-- ⚙️ CORS enabled for cross-origin usage
+    └── requirements.txt               # 🔹 pip requirements file
+    └── quantum_optimizer           
+         └── data
+         └── postprocessing
+         └── preprocessing
+         └── requirements.txt
+└── frontend_UI
+      └── Stocks_App
+         └── src
+            └── components
+            └── styles
+         └── public
+         └── .gitignore
