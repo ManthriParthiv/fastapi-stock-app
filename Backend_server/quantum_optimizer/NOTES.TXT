@@ -54,3 +54,14 @@ test case:
   "risk_factor": 0.3,
   "budget": 1.0
 }
+
+
+
+------------------------------------------------------------------
+8 aug 2025 
+{
+  "tickers": ["TCS.NS", "SIEMENS.NS"],
+  "risk_factor": 0.6,
+  "budget": 1.0,
+  "strategy": "balanced"
+}
