@@ -1,112 +1,159 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Query, HTTPException, APIRouter
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import List, Dict
-import numpy as np
+from http import HTTPStatus
 import pandas as pd
-from pathlib import Path
+import math
+from pydantic import BaseModel,Field
+from typing import List, Dict, Any
+import numpy as np
 import logging
-from datetime import datetime
+from pathlib import Path
 
-app = FastAPI()
-logger = logging.getLogger(__name__)
+# ---------- Import tickers and init core app ----------
+from tickers import tickers
 
-# Setup CORS
+app = FastAPI(title="Quantum Optimizer", version="1.0.0")
+
+# ✅ CORS config
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-class PortfolioRequest(BaseModel):
-    tickers: List[str] = Field(..., min_items=2, max_items=10, 
-                             description="List of tickers to optimize")
-    risk_factor: float = Field(0.5, ge=0.1, le=1.0, 
-                             description="Risk appetite (0.1-1.0)")
-    budget: float = Field(1.0, gt=0, 
-                        description="Total investment budget")
-    use_fundamentals: bool = Field(True,
-                                 description="Include fundamental analysis")
+# ✅ Load tickers and stock data
+data, df, tickers = tickers()
 
-@app.post("/optimize")
-async def optimize_portfolio(request: PortfolioRequest):
-    """Optimize portfolio using quantum VQE with financial parameters"""
+
+# ---------- Helper Functions ----------
+def safe_value(val):
+    """Handle NaN/inf values."""
+    if isinstance(val, float) and (math.isnan(val) or math.isinf(val)):
+        return None
+    return val
+
+
+# ---------- Stock Routes (Original main.py) ----------
+@app.get("/", status_code=HTTPStatus.OK)
+def home():
+    return {"message": "Stock API: Stocks + Quantum Optimization"}
+
+
+@app.get("/stocks", status_code=HTTPStatus.OK)
+def get_stocks(page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=500)):
+    start = (page - 1) * limit
+    end = start + limit
+    if start >= len(df):
+        raise HTTPException(status_code=404, detail="No more stocks available.")
+
+    result = [
+        {"ticker": safe_value(row["Symbol"]), "name": safe_value(row["Name"])}
+        for _, row in df.iloc[start:end].iterrows()
+    ]
+    return JSONResponse(content=result)
+
+#Fundamentals.csv file Data-------------------------
+
+@app.get("/stock/{ticker}", status_code=HTTPStatus.OK)
+def get_one_stock(ticker: str):
     try:
-        logger.info(f"Optimization request for {request.tickers}")
+        match = data.loc[data["Ticker"] == ticker]
+
+        if match.empty:
+            raise HTTPException(
+                status_code=HTTPStatus.NOT_FOUND,
+                detail=f"No data found for ticker '{ticker}'"
+            )
+
+        row = match.iloc[0].to_dict()
+
+        clean_row = {}
+        for key, value in row.items():
+            if pd.isna(value):
+                clean_row[key] = ""
+            else:
+                clean_row[key] = str(value)
         
-        # Data loading
-        data_path = Path(__file__).parent/"quantum_optimizer"/"data"
-        
-        # Load price data
-        prices = pd.read_csv(
-            data_path/"last6m.csv", 
-            index_col=0, 
-            parse_dates=True
-        )[request.tickers]
-        
-        # Calculate returns (annualized)
-        returns = prices.pct_change().dropna()
-        mu = returns.mean().values * 252  # Annualize returns
-        cov = returns.cov().values * 252  # Annualize covariance
+        return clean_row
 
-        # Load fundamentals if needed
-        fundamentals_dict = {}
-        if request.use_fundamentals:
-            try:
-                fundamentals = pd.read_csv(
-                    data_path/"fundamentals.csv",
-                    index_col="Ticker"
-                ).loc[request.tickers]
-                
-                fundamentals_dict = {
-                    ticker: fundamentals.loc[ticker].to_dict()
-                    for ticker in request.tickers
-                }
-            except Exception as e:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Failed to load fundamentals: {str(e)}"
-                )
-
-        # Run quantum optimization
-        from quantum_optimizer.processing.vqe_portfolio import run_vqe
-        weights, result = run_vqe(
-            mu=mu,
-            cov=cov,
-            fundamentals=fundamentals_dict,
-            budget=request.budget,
-            risk_factor=request.risk_factor
-        )
-
-        # Calculate portfolio metrics
-        portfolio_return = float(weights @ mu)
-        portfolio_risk = float(np.sqrt(weights @ cov @ weights.T))
-
-        # Prepare response
-        response = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "tickers": request.tickers,
-            "weights": {t: round(float(w), 4) for t, w in zip(request.tickers, weights)},
-            "risk": round(portfolio_risk, 6),
-            "expected_return": round(portfolio_risk, 6),
-            "fundamentals_used": request.use_fundamentals,
-            "parameter_values": result.get('raw_fundamentals', {}),
-            "composite_scores": result.get('composite_scores', {}),
-            "optimization_metadata": result.get('optimizer_metadata', {})
-        }
-
-        return response
-
-    except HTTPException:
-        raise
     except Exception as e:
-        logger.error(f"Optimization failed: {str(e)}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail=f"Portfolio optimization failed: {str(e)}"
-        )
+            return{}
 
+# ---------- Quantum Router (Converted fastapi_adapter.py) ----------
+
+quantum_router = APIRouter(prefix="/quantum")
+
+class PortfolioRequest(BaseModel):
+    tickers: List[str] = Field(..., min_items=2, max_items=4)
+    risk_factor: float = Field(0.5, ge=0.1, le=1.0)
+    budget: float = Field(1.0, gt=0)
+    strategy: str = Field(None, description="Portfolio strategy")
+
+@quantum_router.get("/")
+def quantum_root():
+    return {"message": "Quantum Portfolio Optimizer Subsystem"}
+
+
+@quantum_router.post("/optimize")
+@quantum_router.post("/portfolio-optimize")
+async def optimize(request: PortfolioRequest):
+    try:
+        # Load data (replace paths as needed)
+        data_path = Path(__file__).parent/"quantum_optimizer"/"data"
+        prices = pd.read_csv(data_path / "last6m.csv", index_col=0, parse_dates=True)[request.tickers]
+        fundamentals = pd.read_csv(data_path / "fundamentals.csv", index_col="Ticker").loc[request.tickers]
+
+        # Calculate returns and covariance
+        returns = prices.pct_change().dropna()
+        mu = returns.mean().values.astype(np.float64)
+        cov = returns.cov().values.astype(np.float64)
+
+        # Run VQE (import your actual function)
+        from quantum_optimizer.processing.vqe_portfolio import run_vqe
+        weights, _ = run_vqe(mu=mu, cov=cov, fundamentals=fundamentals, budget=request.budget,
+                             risk_factor=request.risk_factor)
+
+        return {
+            "tickers": request.tickers,
+            "weights": {t: float(w) for t, w in zip(request.tickers, weights)},
+            "risk": float(np.sqrt(weights @ cov @ weights.T))
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
+
+
+@quantum_router.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
+
+# ---------- Mount Quantum Router ----------
+app.include_router(quantum_router)
+
+
+# ---------- VQE Endpoint (Original main.py) ----------
+class VQEInput(BaseModel):
+    mu: List[float]
+    cov: List[List[float]]
+    fundamentals: List[float]
+    budget: float
+    risk_factor: float
+
+
+@app.post("/quantum/portfolio-optimize")
+def optimize_portfolio(request: VQEInput):
+    try:
+        result = run_quantum_backend(**request.dict())
+        return {"optimized_weights": result["weights"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ---------- Run Server ----------
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
