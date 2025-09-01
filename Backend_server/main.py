@@ -1,3 +1,16 @@
+import numpy as np
+
+# Utility to sanitize JSON output
+def sanitize_json(obj):
+    if isinstance(obj, dict):
+        return {k: sanitize_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_json(v) for v in obj]
+    elif isinstance(obj, float):
+        if np.isnan(obj) or np.isinf(obj):
+            return None
+        return obj
+    return obj
 from fastapi import FastAPI, Query, HTTPException, APIRouter
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
@@ -114,14 +127,18 @@ async def optimize(request: PortfolioRequest):
 
         # Run VQE (import your actual function)
         from quantum_optimizer.processing.vqe_portfolio import run_vqe
-        weights, _ = run_vqe(mu=mu, cov=cov, fundamentals=fundamentals, budget=request.budget,
+        weights, vqe_output = run_vqe(mu=mu, cov=cov, fundamentals=fundamentals.to_dict(orient='index'), budget=request.budget,
                              risk_factor=request.risk_factor)
 
-        return {
+        response = {
             "tickers": request.tickers,
             "weights": {t: float(w) for t, w in zip(request.tickers, weights)},
-            "risk": float(np.sqrt(weights @ cov @ weights.T))
+            "risk": float(np.sqrt(weights @ cov @ weights.T)),
+            "composite_scores": vqe_output.get("composite_scores", {}),
+            "all_parameters": vqe_output.get("all_parameters", {}),
+            "optimization_metadata": vqe_output.get("optimization_metadata", {})
         }
+        return sanitize_json(response)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Optimization failed: {str(e)}")
 
@@ -135,22 +152,6 @@ def health_check():
 app.include_router(quantum_router)
 
 
-# ---------- VQE Endpoint (Original main.py) ----------
-class VQEInput(BaseModel):
-    mu: List[float]
-    cov: List[List[float]]
-    fundamentals: List[float]
-    budget: float
-    risk_factor: float
-
-
-@app.post("/quantum/portfolio-optimize")
-def optimize_portfolio(request: VQEInput):
-    try:
-        result = run_quantum_backend(**request.dict())
-        return {"optimized_weights": result["weights"]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ---------- Run Server ----------

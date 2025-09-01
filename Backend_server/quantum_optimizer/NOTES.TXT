@@ -68,3 +68,9 @@ test case:
 
 
 24 aug
+{
+  "tickers": ["TCS.NS", "SIEMENS.NS"],
+  "risk_factor": 0.6,
+  "budget": 1.0,
+  "strategy": "balanced"
+}

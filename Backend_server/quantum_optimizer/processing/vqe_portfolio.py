@@ -5,6 +5,19 @@ from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SPSA
 from qiskit.primitives import Estimator
 from typing import Dict
+PARAM_WEIGHTS = {
+    'PE': 0.15, 'PB': 0.10, 'ROE': 0.10, 'EV/EBITDA': 0.12,
+    'RevenueGrowth': 0.05, 'PEGRatio': 0.08, 'NetMargin': 0.10,
+    'FreeCF': 0.10, 'OpMargin': 0.10, 'P/S': 0.10, 'Payout': 0.05,
+    'CurrRatio': 0.05
+}
+
+def calculate_composite_score(params: Dict) -> float:
+    score = 0.0
+    for param, weight in PARAM_WEIGHTS.items():
+        value = params.get(param, 0)
+        score += float(value) * weight
+    return min(max(score * 100, 0), 100)
 
 def create_hamiltonian(mu, cov, fundamentals, risk_factor, budget):
     """Create Hamiltonian with guaranteed real coefficients"""
@@ -41,7 +54,11 @@ def create_hamiltonian(mu, cov, fundamentals, risk_factor, budget):
         pauli[i] = 'Z'
         terms.append((''.join(pauli), float(0.1 * budget)))
     
-    # Identity term
+        # Collect all parameters for each ticker
+        all_params = {
+            t: {k: fundamentals[t].get(k, None) for k in fundamentals[t].keys()}
+            for t in sorted(fundamentals.keys())
+    }
     terms.append(('I'*n, float(0.5 * n)))
     
     # Final validation
@@ -91,6 +108,23 @@ def run_vqe(mu, cov, fundamentals, budget, risk_factor, maxiter=50):
         theta = np.real(result.optimal_point)  # Force real
         weights = np.sin(theta[:n])**2
         weights = np.real(weights / np.sum(weights))  # Normalize and ensure real
+        # Collect all parameters for each ticker
+        all_params = {
+            t: {k: fundamentals[t].get(k, None) for k in fundamentals[t].keys()}
+            for t in sorted(fundamentals.keys())
+        }
+        composite_scores = {
+            t: calculate_composite_score(fundamentals[t])
+            for t in sorted(fundamentals.keys())
+        }
+        return weights, {
+            'composite_scores': composite_scores,
+            'all_parameters': all_params,
+            'optimization_metadata': {
+                'optimal_value': float(result.optimal_value),
+                'optimizer_time': float(result.optimizer_time)
+            }
+        }
         
         return weights, result
         
