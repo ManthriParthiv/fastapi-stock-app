@@ -96,11 +96,13 @@ def run_vqe(mu, cov, fundamentals, budget, risk_factor, maxiter=50):
         optimizer = SPSA(maxiter=maxiter, learning_rate=0.01, perturbation=0.01)
         
         # Run VQE
+        np.random.seed(42)  # Set a fixed seed for deterministic results
+        initial_point = np.random.rand(ansatz.num_parameters)
         vqe = VQE(
             estimator=Estimator(),
             ansatz=ansatz,
             optimizer=optimizer,
-            initial_point=np.random.rand(ansatz.num_parameters)
+            initial_point=initial_point
         )
         result = vqe.compute_minimum_eigenvalue(H)
         
