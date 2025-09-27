@@ -76,6 +76,36 @@ export default function ResultsPage() {
             <div className="alert alert-info text-center mt-3">
               <strong>Overall Risk:</strong> {(analysisResults.risk)}%
             </div>
+
+            {/* Display all parameters for each ticker */}
+            {analysisResults.all_parameters && (
+              <div className="mt-4">
+                <h5 className="text-center mb-3">All Parameters</h5>
+                {Object.entries(analysisResults.all_parameters).map(([ticker, params]) => (
+                  <div key={ticker} className="mb-3">
+                    <h6>{ticker}</h6>
+                    <div className="table-responsive">
+                      <table className="table table-bordered table-sm">
+                        <thead>
+                          <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(params).map(([param, value]) => (
+                            <tr key={param}>
+                              <td>{param}</td>
+                              <td>{value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ) : (
